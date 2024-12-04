@@ -11,6 +11,8 @@ const port: number = 3000;
 app.set('views', `${__dirname}/views`); // Tìm đến thư mục tên là views
 app.set('view engine', 'pug'); // template engine sử dụng: pug
 
+app.use(express.static(`${__dirname}/public`)); // Thiết lập thư mục chứa file tĩnh
+
 routesClient(app);
 
 
