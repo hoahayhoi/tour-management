@@ -61,8 +61,47 @@ export const index = async (req: Request, res: Response) => {
     });
 };
 
+
 export const success = async (req: Request, res: Response) => {
-    res.render("client/pages/order/success", {
-        pageTitle: "Đặt hàng thành công"
+    const orderCode = req.query.orderCode;
+
+    const order = await Order.findOne({
+      where: {
+        code: orderCode,
+        deleted: false,
+      },
+      raw: true,
     });
-};
+
+    const ordersItem = await OrderItem.findAll({
+      where: {
+        orderId: order["id"],
+      },
+      raw: true,
+    });
+
+    for (const item of ordersItem) {
+      item["price_special"] = (item["price"] * (1 - item["discount"] / 100));
+      item["total"] = item["price_special"] * item["quantity"];
+      
+      const tourInfo = await Tour.findOne({
+        where: {
+          id: item["tourId"],
+        },
+        raw: true,
+      });
+
+      tourInfo["images"] = JSON.parse(tourInfo["images"]);
+      item["image"] = tourInfo["images"][0];
+      item["title"] = tourInfo["title"];
+      item["slug"] = tourInfo["slug"];
+    }
+
+    order["total_price"] = ordersItem.reduce((sum, item) => sum + item["total"], 0);
+    
+    res.render("client/pages/order/success", {
+      pageTitle: "Đặt hàng thành công",
+      order: order,
+      ordersItem: ordersItem
+    });
+  };
