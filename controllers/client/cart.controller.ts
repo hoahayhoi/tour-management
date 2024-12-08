@@ -29,7 +29,7 @@ export const list = async (req: Request, res: Response) => {
         tour["slug"] = infoTour["slug"];
         tour["price_special"] = (1 - infoTour["discount"] / 100) * infoTour["price"];
         tour["total"] = tour["price_special"] * tour["quantity"];
-        
+
         total += tour["total"];
     }
     res.json({
@@ -37,3 +37,4 @@ export const list = async (req: Request, res: Response) => {
         total: total
     });
 };
+
